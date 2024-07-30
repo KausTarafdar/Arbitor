@@ -18,6 +18,7 @@ export async function handleServiceCall (req, res) {
     const response = await requestForwarding(serviceInfo[0], data);
     res.status(200).json(response.data); 
   } catch(err) {
+    console.log(err);
     return res.status(500).json({ Error: "Internal server error" });
   }
 }

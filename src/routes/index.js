@@ -13,10 +13,10 @@ router.get("/:serviceId", handleServiceCall);
 
 //To create/delete services
 router.post("/create", handleCreateService);
-router.post("/delete/:serviceId", handleDeleteService);
+router.delete("/delete/:serviceId", handleDeleteService);
 
 //To enable/disable a service
-router.patch("/enable/:serviceId", handleEnableService);
-router.patch("/disable/:serivceId", handleDisableService);
+router.patch("/enable", handleEnableService);
+router.patch("/disable", handleDisableService);
 
 export default router;

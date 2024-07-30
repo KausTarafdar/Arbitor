@@ -1,13 +1,22 @@
+import capitalizeFirstLetter from "../utils/capitaliseFirstLetter.js";
 import { client } from "./ServiceDBConnection.js";
 
 // Function to fetch service info from DB
 export async function fetchServiceInfo(serviceName) {
+  var serviceName = capitalizeFirstLetter(serviceName);
   const query = await client.query(`SELECT * FROM ${serviceName} WHERE ENABLED='y' LIMIT 1`);
   return query.rows;
 }
 
+//Function to fetch one service instance from DB
+export async function fetchOneService(serviceName) {
+  var serviceName = capitalizeFirstLetter(serviceName);
+  const query = await client.query(`SELECT * FROM ${serviceName} LIMIT 1`);
+  return query.rows;
+}
+
 //Function to create a service table and create an instance of the service
-export async function createService(service) {
+export async function createServiceWithInfo(service) {
   const createQuery = await client.query(
     `CREATE TABLE ${service.serviceName}(
       s_id SERIAL UNIQUE,
