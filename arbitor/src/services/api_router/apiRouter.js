@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import axios from 'axios';
 
 import countNums from '../../utils/countNums.js';
+import { surveyor } from '../health_checker/janitor.js';
 
 /** Class representing the load balancer and the service calling*/
 export default class API_routing {
@@ -50,16 +51,36 @@ export default class API_routing {
    */
   async callService() {
     if (['POST', 'PUT', 'PATCH'].includes(this.request.req_method)){
-      
+      for(var i=0; i<this.targetServices.length; i++){
+        const response = _callWithBody(this.targetServices[i]);
+        if (response === "ECONNREFUSED") {
+          surveyor(this.targetServices[i]);
+        }
+        else {
+          break;
+        }
+      }
+
+      return response
     }
     else if (['GET', 'DELETE'].includes(this.request.req_method)) {
+      for(var i=0; i<this.targetServices.length; i++){
+        const response = _callWithoutBody(this.targetServices[i]);
+        if (response === "ECONNREFUSED") {
+          surveyor(this.targetServices[i]);
+        }
+        else {
+          break;
+        }
+      }
 
+      return response
     }
   }
 
-  async _callWithBody() {
+  async _callWithBody(targetService) {
     const callMethod = this.request.method;
-    const targetUrl = `${this.targetService.base_url}:${this.targetService.port}${this.targetService.endpoint}`
+    const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}`
     const callBody = this.request.req_body;
 
 
@@ -71,13 +92,13 @@ export default class API_routing {
       });
       return axiosRes;
     } catch (err) {
-      return err.cause.code;
+      return err.code;
     }
   }
 
-  async _callWithoutBody() {
+  async _callWithoutBody(targetService) {
     const callMethod = this.request.method;
-    const targetUrl = `${this.targetService.base_url}:${this.targetService.port}${this.targetService.endpoint}${this.request.req_params}`
+    const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}${this.request.req_params}`
 
     try {
       const axiosRes = await axios({
@@ -85,9 +106,8 @@ export default class API_routing {
         url: targetUrl
       });
       return axiosRes
-    }
-    catch (err) {
-      return err.cause.code;
+    } catch (err) {
+      return err.code;
     }
   }
 }

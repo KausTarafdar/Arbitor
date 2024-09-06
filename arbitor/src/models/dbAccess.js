@@ -1,6 +1,6 @@
 import { client } from "../DB/index.js";
 
-/** Class for the database layer interactions */
+/** Class for the database layer interactions for services database*/
 export default class ServiceRepository {
   /**
    * @property {Function} _insertNewService - To insert a service into
@@ -19,7 +19,6 @@ export default class ServiceRepository {
     ];
 
     const createServiceQuery = await client.query(query, values);
-
     return createServiceQuery.rows;
   }
   /**
@@ -53,5 +52,46 @@ export default class ServiceRepository {
     const callServiceQuery = await client.query(query, values);
 
     return callServiceQuery.rows;
+  }
+}
+
+/** Class for database layer interactions for flagged_services database */
+export class FlagServiceRepository {
+  /**
+   * Inserts service into the flagged_services table
+   * @param {Object} flaggedService
+   * @returns {Array} Array of row objects
+   */
+  async _flagService(flaggedService) {
+    const query = "INSERT INTO flagged_services (api_name, base_url, port) VALUES ($1, $2, $3) RETURNING api_name, base_url, port";
+
+    const values = [
+      flaggedService.api_name,
+      flaggedService.base_url,
+      flaggedService.port
+    ]
+
+    const callFlagQuery = await client.query(query, values);
+
+    return callFlagQuery.rows;
+  }
+
+  /**
+   * Delets an api instance from the flagged_services table
+   * @param {Object} flaggedServices
+   * @returns {Array} returns "success" if success
+   */
+  async _deleteFlaggedService(flaggedService) {
+    const query = "DELETE FROM services WHERE id = $1";
+    const values = [
+      flaggedService.id,
+    ]
+
+    const deleteFlaggedService = await client.query(query, values);
+
+    return [
+      deleteFlaggedService,
+      "success"
+    ]
   }
 }

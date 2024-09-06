@@ -55,6 +55,7 @@ export class Service{
 
 /** Class representing an API delete data transfer object */
 export class ServiceDelete{
+
   constructor(data) {
     if(typeof(data.id) === "number") {
       this.id = data.id;
@@ -62,5 +63,14 @@ export class ServiceDelete{
     else {
       throw new Error("Internal gateway error");
     }
+  }
+}
+/** Class representing a flagged service */
+export class FlaggedService {
+  constructor(data) {
+    this.id = data.serviceName;
+    this.serviceName = data.serviceName;
+    this.baseURL = data.baseURL;
+    this.port = data.port;
   }
 }

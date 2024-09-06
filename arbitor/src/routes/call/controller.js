@@ -1,6 +1,4 @@
-import axios from "axios";
-
-import { ServiceCall, ServiceDelete } from "../../dto/api.js";
+import { ServiceCall } from "../../dto/api.js";
 import ServiceRepository from "../../models/dbAccess.js";
 import API_routing from "../../services/api_router/apiRouter.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
@@ -8,7 +6,9 @@ import generateQueryString from "../../utils/generateQueryString.js";
 
 
 const serviceRepository = new ServiceRepository();
-const serviceRegistry = new ServiceRegistry(serviceRepository);
+const serviceRegistry = new ServiceRegistry({
+  service : serviceRepository,
+});
 
 export default async function handleApiCall(req, res) {
 
@@ -32,14 +32,11 @@ export default async function handleApiCall(req, res) {
     });
 
     serviceRouter.loadBalancer();
-    console.log(serviceRouter);
-    // const response = await serviceRouter.callService();
+    const response = serviceRouter.callService();
 
-
-
-    //Return the response from service to the client if response
+    console.log(response);
     return res.status(200).json({
-      response: "OK",
+      res: response
     })
 
   } catch (err) {
