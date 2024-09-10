@@ -24,7 +24,8 @@ class Registrar {
 
       })
       .then(response => response.json())
-      .then(json => json.res ? console.log(json.res) : console.log(json.error));
+      .then(json => (json.res) ? console.log(json.res) : console.log(json.error))
+      .catch(error => console.log("Failed to register service : Check the gateway status and restart the service"))
     }
   }
 }

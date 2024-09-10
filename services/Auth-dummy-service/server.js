@@ -8,15 +8,17 @@ const URL = "http://localhost";
 const app = express();
 const service = registrar();
 
+app.use(express.json());
+
 app.get("/health", (req,res) => {
-  console.log(req.query)
+  console.log(req.path);
   return res.status(200).json({res: "Login Service is running is running"});
 })
 
 app.post("/login", (req, res) => {
-  const received = {
-    data : req.body.data,
-  }
+  console.log(req.path);
+  const received = req.body;
+
   return res.status(200).json({
     res: "User logged in",
     data: received,
