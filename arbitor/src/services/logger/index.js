@@ -14,7 +14,7 @@ export function logMiddleware(req, res, next) {
   const path = `${req.method} :: ${ip + req.path} :: ${new Date().toUTCString()}`
   const userAgent = req.headers['user-agent'];
 
-  log(chalk.greenBright('Request Logged'));
+  log(chalk.greenBright('\nRequest Logged'));
   log(chalk.blueBright(path));
   log(chalk.magenta('user agent: ', chalk.yellowBright(userAgent)));
   next();

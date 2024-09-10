@@ -17,6 +17,7 @@ export default async function handleApiCall(req, res) {
 
   try {
     //Get the exact service called for
+    //Fix routing issue
     const serviceCall = new ServiceCall({
       api_name : req.params.api_name,
       api_key : `/${req.params.api_key}`,
@@ -24,7 +25,6 @@ export default async function handleApiCall(req, res) {
       params : generateQueryString(req.query),
       body : req.body
     });
-
     const callRes = await serviceRegistry.searchApi(serviceCall);
 
     //Get the target service and call particular service
@@ -36,13 +36,13 @@ export default async function handleApiCall(req, res) {
 
     serviceRouter.loadBalancer();
     const response = await serviceRouter.callService(new Supervisor(serviceRegistry));
-
     return res.status(200).json(response.data);
 
   } catch (err) {
-    console.log(err);
+    console.log("")
+    console.log(err.message)
     return res.status(500).json({
-      Error : "Internal server error"
+      Error : "Internal Server Error"
     })
   }
 }

@@ -75,6 +75,9 @@ export default class API_routing {
           break;
         }
       }
+      if (response === "ECONNREFUSED") {
+        throw new Error("Service Unavailable");
+      }
 
       return response
     }

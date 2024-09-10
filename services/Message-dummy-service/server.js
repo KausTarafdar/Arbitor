@@ -8,18 +8,19 @@ const URL = "http://localhost";
 const app = express();
 const service = registrar();
 
+app.use(express.json());
+
 app.get("/health", (req,res) => {
   console.log(req.query)
   return res.status(200).json({res: "Messages service is running"});
 })
 
 app.post("/message", (req, res) => {
-  const message= {
+  const message = {
     Message: req.body.message
   }
   return res.status(200).json({
-    res: received,
-    Message: message,
+    Message: message.Message,
   })
 })
 
@@ -29,18 +30,17 @@ app.get("/messages/:id", (req, res) => {
   }
   return res.status(200).json({
     res: "Returned all messages",
+    id: userID.userId,
     messages: "Database array",
   })
 })
 
 app.put("/message/:id", (req, res) => {
   const changes = {
-    messageId : req.params.id
+    messageId : req.params.id,
+    body : req.body
   }
-  return res.status(200).json({
-    res: "Changes message",
-    messageId: changes
-  })
+  return res.status(200).json(changes)
 })
 
 app.listen(PORT, () => {

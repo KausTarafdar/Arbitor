@@ -10,9 +10,8 @@ export default class Supervisor {
   }
 
   async janitor() {
-
     const flaggedService = (await this.serviceRegistry.getTopFlaggedService())[0];
-    if (!flaggedService) {
+    if (flaggedService === undefined) {
       return 0;
     }
     try {
@@ -21,21 +20,20 @@ export default class Supervisor {
         url: `${flaggedService.base_url}:${flaggedService.port}/health`
       })
       if (axiosRes.status === 200) {
-        const removeFlagged = this.serviceRegistry.deleteFlaggedService(flaggedService);
+        const removeFlagged = await this.serviceRegistry.deleteFlaggedService(flaggedService);
         if (removeFlagged) {
           console.log(chalk.green(`Log : || ${flaggedService.api_name} || restored`));
         }
       }
     } catch (error) {
-      console.log(error.code);
       if (error.code === "ECONNREFUSED") {
         const serviceDelete = new ServiceDelete({
           api_name: flaggedService.api_name,
           base_url: flaggedService.base_url,
           port: flaggedService.port,
         });
-        const removeInstance = this.serviceRegistry.deleteApiInstance(serviceDelete);
-        const removeFlagged = this.serviceRegistry.deleteFlaggedService(flaggedService);
+        const removeInstance = await this.serviceRegistry.deleteApiInstance(serviceDelete);
+        const removeFlagged = await this.serviceRegistry.deleteFlaggedService(flaggedService);
         if (removeFlagged && removeInstance) {
           console.log(chalk.red(`Log : || ${serviceDelete.api_name} || removed from registry`))
         }
