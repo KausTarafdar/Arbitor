@@ -1,4 +1,4 @@
-export const gatewayUrl = "http://localhost:5000/api/register"
+export const gatewayUrl = "http://localhost:5000/register"
 
 export const apiData = {
   "api_name" : "proto_message",
@@ -24,7 +24,7 @@ export const routes = [
   },
   {
     "api_key"     : "/user/edit/message",
-    "endpoint"    : "/message",
+    "endpoint"    : "/edit/message",
     "access_type" : "public",
   }
 ]

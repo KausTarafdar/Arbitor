@@ -35,9 +35,9 @@ app.get("/messages/:id", (req, res) => {
   })
 })
 
-app.put("/message/:id", (req, res) => {
+app.put("/edit/message", (req, res) => {
   const changes = {
-    messageId : req.params.id,
+    messageId : req.query.id,
     body : req.body
   }
   return res.status(200).json(changes)

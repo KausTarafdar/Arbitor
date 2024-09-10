@@ -9,7 +9,7 @@ const serviceRegistry = new ServiceRegistry({
 });
 
 export default async function handleRegister(req, res) {
-
+  console.log(req.path)
   try {
 
     const service = new Service(req.body);

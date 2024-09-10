@@ -13,7 +13,7 @@ app.get("/health", (req,res) => {
   return res.status(200).json({res: "User data service is running"});
 })
 
-app.post("/friends/:id", (req, res) => {
+app.post("/friends", (req, res) => {
   const received = {
     data : req.body.data,
   }
@@ -22,7 +22,7 @@ app.post("/friends/:id", (req, res) => {
   })
 })
 
-app.put("/groups/:id", (req, res) => {
+app.put("/groups", (req, res) => {
   const groups = {
     "Groups" : "Database array",
   }
@@ -32,9 +32,9 @@ app.put("/groups/:id", (req, res) => {
   })
 })
 
-app.delete("/delete/group/:id", (req, res) => {
+app.delete("/delete/group", (req, res) => {
   return res.status(200).json({
-    res: `Delete from group user ${req.params.id}`
+    res: `Delete from group user ${req.query.id}`
   })
 });
 

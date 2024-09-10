@@ -3,7 +3,6 @@ import validateBody from "../utils/validateBody.js";
 
 /** Class representing service call objects */
 export class ServiceCall {
-
   constructor(data) {
     if (data.params === '?') data.params = '/';
     if (Object.keys(data.body).length == 0) data.body = { 0:'NA' };

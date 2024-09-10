@@ -3,7 +3,6 @@ import ServiceRegistry from "../services/service_registry/serviceRegistry.js";
 import Supervisor from "../services/health_checker/supervisor.js";
 
 export default async function cleanUpRegistry(req, res, next) {
-  console.log("hello");
   const supervisor = new Supervisor(
     new ServiceRegistry({
     service: new ServiceRepository(),

@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(logMiddleware);
-app.use('/api', router);
+app.use('/', router);
 
 app.listen(PORT, async () => {
   console.log(`Gateway listening at ${URL}:${PORT}`);

@@ -4,6 +4,7 @@ import API_routing from "../../services/api_router/apiRouter.js";
 import Supervisor from "../../services/health_checker/supervisor.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
 import generateQueryString from "../../utils/generateQueryString.js";
+import parseRequest from "../../utils/pathParser.js";
 
 
 const serviceRepository = new ServiceRepository();
@@ -14,13 +15,11 @@ const serviceRegistry = new ServiceRegistry({
 });
 
 export default async function handleApiCall(req, res) {
-
   try {
-    //Get the exact service called for
-    //Fix routing issue
+    const path = parseRequest(req.path)
     const serviceCall = new ServiceCall({
-      api_name : req.params.api_name,
-      api_key : `/${req.params.api_key}`,
+      api_name : path.api_name,
+      api_key : path.api_key,
       method : req.method,
       params : generateQueryString(req.query),
       body : req.body

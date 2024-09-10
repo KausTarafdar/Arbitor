@@ -85,9 +85,8 @@ export default class API_routing {
 
   async _callWithBody(targetService) {
     const callMethod = this.request.req_method;
-    const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}`
+    const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}${this.request.req_params}`
     const callBody = this.request.req_body;
-
     try {
       const axiosRes = await axios({
         method: callMethod,
