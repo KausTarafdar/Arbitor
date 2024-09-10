@@ -46,22 +46,44 @@ export default class API_routing {
 
   /**
    * @property {Function} Forwards request to an instance of the service called
+   * @param {Object} Takes a supervisor service class object
    * @returns {Object} Returns service object
    */
-  async callService() {
+  async callService(supervisor) {
+    let response;
+
     if (['POST', 'PUT', 'PATCH'].includes(this.request.req_method)){
-      
+      for(var i=0; i<this.targetServices.length; i++){
+        response = await this._callWithBody(this.targetServices[i]);
+        if (response === "ECONNREFUSED") {
+          await supervisor.surveyor(this.targetServices[i]);
+        }
+        else {
+          break;
+        }
+      }
+
+      return response
     }
     else if (['GET', 'DELETE'].includes(this.request.req_method)) {
+      for(var i=0; i<this.targetServices.length; i++){
+        response = await this._callWithoutBody(this.targetServices[i]);
+        if (response === "ECONNREFUSED") {
+          await supervisor.surveyor(this.targetServices[i]);
+        }
+        else {
+          break;
+        }
+      }
 
+      return response
     }
   }
 
-  async _callWithBody() {
-    const callMethod = this.request.method;
-    const targetUrl = `${this.targetService.base_url}:${this.targetService.port}${this.targetService.endpoint}`
+  async _callWithBody(targetService) {
+    const callMethod = this.request.req_method;
+    const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}`
     const callBody = this.request.req_body;
-
 
     try {
       const axiosRes = await axios({
@@ -71,13 +93,13 @@ export default class API_routing {
       });
       return axiosRes;
     } catch (err) {
-      return err.cause.code;
+      return err.code;
     }
   }
 
-  async _callWithoutBody() {
-    const callMethod = this.request.method;
-    const targetUrl = `${this.targetService.base_url}:${this.targetService.port}${this.targetService.endpoint}${this.request.req_params}`
+  async _callWithoutBody(targetService) {
+    const callMethod = this.request.req_method;
+    const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}${this.request.req_params}`
 
     try {
       const axiosRes = await axios({
@@ -85,9 +107,8 @@ export default class API_routing {
         url: targetUrl
       });
       return axiosRes
-    }
-    catch (err) {
-      return err.cause.code;
+    } catch (err) {
+      return err.code;
     }
   }
 }

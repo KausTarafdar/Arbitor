@@ -1,14 +1,17 @@
-import axios from "axios";
-
-import { ServiceCall, ServiceDelete } from "../../dto/api.js";
-import ServiceRepository from "../../models/dbAccess.js";
+import { ServiceCall } from "../../dto/api.js";
+import { ServiceRepository, FlagServiceRepository } from "../../models/dbAccess.js";
 import API_routing from "../../services/api_router/apiRouter.js";
+import Supervisor from "../../services/health_checker/supervisor.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
 import generateQueryString from "../../utils/generateQueryString.js";
 
 
 const serviceRepository = new ServiceRepository();
-const serviceRegistry = new ServiceRegistry(serviceRepository);
+const flagServiceRepository = new FlagServiceRepository();
+const serviceRegistry = new ServiceRegistry({
+  service : serviceRepository,
+  flagService : flagServiceRepository,
+});
 
 export default async function handleApiCall(req, res) {
 
@@ -32,15 +35,9 @@ export default async function handleApiCall(req, res) {
     });
 
     serviceRouter.loadBalancer();
-    console.log(serviceRouter);
-    // const response = await serviceRouter.callService();
+    const response = await serviceRouter.callService(new Supervisor(serviceRegistry));
 
-
-
-    //Return the response from service to the client if response
-    return res.status(200).json({
-      response: "OK",
-    })
+    return res.status(200).json(response.data);
 
   } catch (err) {
     console.log(err);

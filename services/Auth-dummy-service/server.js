@@ -1,20 +1,24 @@
 import express from "express";
-import axios from "axios";
+
+import registrar from "./register-service/registrar.js";
 
 const PORT = 3000;
 const URL = "http://localhost";
 
 const app = express();
+const service = registrar();
+
+app.use(express.json());
 
 app.get("/health", (req,res) => {
-  console.log(req.query)
+  console.log(req.path);
   return res.status(200).json({res: "Login Service is running is running"});
 })
 
 app.post("/login", (req, res) => {
-  const received = {
-    data : req.body.data,
-  }
+  console.log(req.path);
+  const received = req.body;
+
   return res.status(200).json({
     res: "User logged in",
     data: received,
@@ -30,26 +34,5 @@ app.get("/logout/:id", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Service listening at ${URL}:${PORT}`);
-  register();
+  service.registerToGateway();
 })
-
-async function register() {
-  await axios.post( 'http://localhost:5000/api/register',{
-      api_name: "dummy_service_1",
-      api_key: "/get",
-      endpoint: "/health",
-      base_url: "http://localhost",
-      port: 3000,
-      access_type: "all"
-  }, {
-    headers: {
-      'Content-type': 'application/json'
-    }
-  }).catch((error) => {
-    console.log(error);
-  })
-}
-
-function unregister() {
-
-}
