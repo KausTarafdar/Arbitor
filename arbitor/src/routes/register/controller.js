@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { Service } from "../../dto/api.js";
-import ServiceRepository from "../../models/dbAccess.js";
+import { ServiceRepository } from "../../models/dbAccess.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
 
 const serviceRepository = new ServiceRepository();
@@ -11,14 +11,14 @@ const serviceRegistry = new ServiceRegistry({
 export default async function handleRegister(req, res) {
 
   try {
+
     const service = new Service(req.body);
 
     const createRes = await serviceRegistry.createApiInstance(service);
 
-    console.log(chalk.greenBright(`New service instance registered "${createRes[0].api_name}"`))
-    return res.status(200).json({
-      res: createRes,
-    });
+    console.log(chalk.greenBright(createRes.res));
+
+    return res.status(200).json(createRes);
 
   } catch (err) {
 

@@ -4,7 +4,7 @@ export default class ServiceRegistry {
   flagServiceRepository
   constructor(repositories) {
     this.serviceRepository = repositories.service || null;
-    this.flagServiceRepository = repositories.flagService || null
+    this.flagServiceRepository = repositories.flagService || null;
   }
 
   //##########################################################################################//
@@ -25,9 +25,21 @@ export default class ServiceRegistry {
    * @returns createAPI results
    */
   async createApiInstance(service) {
-    const createAPI = await this.serviceRepository._insertNewService(service);
+    const findAPI = await this.serviceRepository._findService(service);
 
-    return createAPI;
+    if (findAPI.length !== 0) {
+      return {
+        res: `Service already exists : ${service.api_name}`
+      }
+    }
+
+    else {
+      const createAPI = await this.serviceRepository._insertNewService(service);
+      return {
+        res: `Added new service : ${createAPI[0].api_name}`
+      };
+    }
+
   }
 
   /**
@@ -48,9 +60,15 @@ export default class ServiceRegistry {
    * @returns flagAPI results
    */
   async flagService(flaggedService) {
-    const flagApi = await this.serviceRepository._flagService(flaggedService)
+    const findFlaggedAPI = await this.flagServiceRepository._findFlaggedService(flaggedService);
 
-    return flagApi;
+    if (findFlaggedAPI.length === 0) {
+      const flagApi = await this.flagServiceRepository._flagService(flaggedService)
+
+      return flagApi;
+    }
+
+    return findFlaggedAPI[0];
   }
 
   /**
@@ -59,8 +77,14 @@ export default class ServiceRegistry {
    * @returns deletion results
   */
   async deleteFlaggedService(flaggedService) {
-    const deleteFlaggedService = await this.serviceRepository._deleteFlaggedService(flaggedService);
+    const deleteFlaggedService = await this.flagServiceRepository._deleteFlaggedService(flaggedService);
 
     return deleteFlaggedService;
+  }
+
+  async getTopFlaggedService() {
+    const getTopFlaggedService = await this.flagServiceRepository._topFlaggedService();
+
+    return getTopFlaggedService;
   }
 }

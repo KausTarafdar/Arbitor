@@ -2,7 +2,6 @@ import crypto from 'node:crypto';
 import axios from 'axios';
 
 import countNums from '../../utils/countNums.js';
-import { surveyor } from '../health_checker/janitor.js';
 
 /** Class representing the load balancer and the service calling*/
 export default class API_routing {
@@ -47,14 +46,17 @@ export default class API_routing {
 
   /**
    * @property {Function} Forwards request to an instance of the service called
+   * @param {Object} Takes a supervisor service class object
    * @returns {Object} Returns service object
    */
-  async callService() {
+  async callService(supervisor) {
+    let response;
+
     if (['POST', 'PUT', 'PATCH'].includes(this.request.req_method)){
       for(var i=0; i<this.targetServices.length; i++){
-        const response = _callWithBody(this.targetServices[i]);
+        response = await this._callWithBody(this.targetServices[i]);
         if (response === "ECONNREFUSED") {
-          surveyor(this.targetServices[i]);
+          await supervisor.surveyor(this.targetServices[i]);
         }
         else {
           break;
@@ -65,9 +67,9 @@ export default class API_routing {
     }
     else if (['GET', 'DELETE'].includes(this.request.req_method)) {
       for(var i=0; i<this.targetServices.length; i++){
-        const response = _callWithoutBody(this.targetServices[i]);
+        response = await this._callWithoutBody(this.targetServices[i]);
         if (response === "ECONNREFUSED") {
-          surveyor(this.targetServices[i]);
+          await supervisor.surveyor(this.targetServices[i]);
         }
         else {
           break;
@@ -79,10 +81,9 @@ export default class API_routing {
   }
 
   async _callWithBody(targetService) {
-    const callMethod = this.request.method;
+    const callMethod = this.request.req_method;
     const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}`
     const callBody = this.request.req_body;
-
 
     try {
       const axiosRes = await axios({
@@ -97,7 +98,7 @@ export default class API_routing {
   }
 
   async _callWithoutBody(targetService) {
-    const callMethod = this.request.method;
+    const callMethod = this.request.req_method;
     const targetUrl = `${targetService.base_url}:${targetService.port}${targetService.endpoint}${this.request.req_params}`
 
     try {

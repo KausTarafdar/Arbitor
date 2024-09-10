@@ -1,13 +1,16 @@
 import { ServiceCall } from "../../dto/api.js";
-import ServiceRepository from "../../models/dbAccess.js";
+import { ServiceRepository, FlagServiceRepository } from "../../models/dbAccess.js";
 import API_routing from "../../services/api_router/apiRouter.js";
+import Supervisor from "../../services/health_checker/supervisor.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
 import generateQueryString from "../../utils/generateQueryString.js";
 
 
 const serviceRepository = new ServiceRepository();
+const flagServiceRepository = new FlagServiceRepository();
 const serviceRegistry = new ServiceRegistry({
   service : serviceRepository,
+  flagService : flagServiceRepository,
 });
 
 export default async function handleApiCall(req, res) {
@@ -32,12 +35,9 @@ export default async function handleApiCall(req, res) {
     });
 
     serviceRouter.loadBalancer();
-    const response = serviceRouter.callService();
+    const response = await serviceRouter.callService(new Supervisor(serviceRegistry));
 
-    console.log(response);
-    return res.status(200).json({
-      res: response
-    })
+    return res.status(200).json(response.data);
 
   } catch (err) {
     console.log(err);

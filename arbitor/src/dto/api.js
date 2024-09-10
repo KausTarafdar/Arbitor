@@ -57,14 +57,20 @@ export class Service{
 export class ServiceDelete{
 
   constructor(data) {
-    if(typeof(data.id) === "number") {
-      this.id = data.id;
-    }
-    else {
-      throw new Error("Internal gateway error");
-    }
+    validateBody(
+      data,
+      [
+        "api_name",
+        "base_url",
+        "port"
+      ]
+    );
+    this.api_name = data.api_name;
+    this.base_url = data.base_url;
+    this.port = data.port;
   }
 }
+
 /** Class representing a flagged service */
 export class FlaggedService {
   constructor(data) {
