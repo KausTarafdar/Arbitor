@@ -34,6 +34,7 @@ export default async function handleApiCall(req, res) {
     });
 
     serviceRouter.loadBalancer();
+    console.log(serviceRouter)
     const response = await serviceRouter.callService(new Supervisor(serviceRegistry));
     return res.status(200).json(response.data);
 

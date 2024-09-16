@@ -2,7 +2,7 @@ import express from "express";
 
 import registrar from "./register-service/registrar.js";
 
-const PORT = 3000;
+const PORT = 3004;
 const URL = "http://localhost";
 
 const app = express();

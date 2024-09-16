@@ -7,10 +7,14 @@
  */
 export default function checkPortAndAccess(body) {
   if (
-    !(typeof(body.port) === "string") ||
+    !(typeof(body.port) === "string")
+  ) {
+    throw new Error("Check port type. Gateway accepts port type to be a string.");
+  }
+  else if (
     !(["private", "public"].includes(body.access_type))
   ) {
-    throw new Error("Check port or access_type");
+    throw new Error("Check access_type value. Gateway accepts 'public' or 'private' values.");
   }
   else {
     return true;

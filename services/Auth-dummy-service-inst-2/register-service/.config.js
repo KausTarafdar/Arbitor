@@ -3,7 +3,7 @@ export const gatewayUrl = "http://localhost:5000/register"
 export const apiData = {
   "api_name" : "proto_login",
   "base_url" : "http://localhost",
-  "port"     : "3000",
+  "port"     : "3003",
 }
 
 export const routes = [

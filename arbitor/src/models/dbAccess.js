@@ -75,7 +75,6 @@ export class ServiceRepository {
       service.endpoint,
       service.port
     ]
-
     const checkServiceExistsQuery = await client.query(query, value);
     return checkServiceExistsQuery.rows;
   }
