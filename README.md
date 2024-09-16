@@ -69,7 +69,7 @@ Upon running the service with the API gateway running, the service wiill registe
 ### Calling a registered service
 
 ```http
-ANY-METHOD /:service_name/:service_key
+ALL /:service_name/:service_key
 ```
 |     Parameter    |                     Description                         |
 |:-----------------|:--------------------------------------------------------|
