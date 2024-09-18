@@ -4,7 +4,7 @@
 
 This project is an attempt at understanding the programming paradigms behind an API Gateway and to design a homebrew version capable of fulfilling those paradigms.
 
-An API gateway acts as an intermediary between clients and a collection of backend services. **Arbitor** acts as the Single Point Of Access (SPOA) between itself an the backend service as well as a loadbalancer among mutiple instances of services.
+An API gateway acts as an intermediary between clients and a collection of backend services. **Arbitor** acts as the Single Point Of Access (SPOA) between itself and the backend service as well as a loadbalancer among mutiple instances of services.
 
 ## Usage Reference
 
