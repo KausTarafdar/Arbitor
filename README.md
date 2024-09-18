@@ -10,7 +10,7 @@ An API gateway acts as an intermediary between clients and a collection of backe
 
 ### Add an service
 
-Add the `register-service` directory in the service. In the `regiser-service`, edit the `.config.js` according to your service. The guidelines are as follows:
+Add the `register-service` directory in your service. In the `regiser-service`, edit the `.config.js` according to your service. The guidelines are as follows:
 ```js
 export const gatewayUrl = "http://localhost:5000/register"
 ```
@@ -49,7 +49,7 @@ export const routes = {
 | `endpoint`    | `string` | **Required**. Endpoint in your service.               |
 | `access_type` | `string` | **Required**. *private* or *public* endpoint          |
 > [Note!]
->> The /health route is required for the gateway to be able to remove the service from service registry when the service goes down. removing it or not providing it in the service may cause issues.
+>> The /health route is required for the gateway to be able to remove the service from service registry when the service goes down. Removing it or not providing it in the service may cause issues.
 
 In the service main file, create a `registrar` instance. Example code here uses the express framework to run server.
 ```js
@@ -57,7 +57,7 @@ import express from 'express';
 import registrar from './register-service/registrar.js';
 
 const app = express();
-const registrar = reggistrar(); //Initiate an instance
+const registrar = registrar(); //Initiate an instance
 
 app.listen(3000, () => {
   console.log(`Starting the app..`);
@@ -78,7 +78,7 @@ ALL /:service_name/:service_key
 
 **Naming limitations**
 
-The gateway, so far cannot parse paramaters in the URL path, it is suggested to pass any parameters as query strings as those are fed forward. Later versions of the application will look to solve this issue.
+The gateway, so far cannot parse parameters in the URL path, it is suggested to pass any parameters as query strings as those are fed forward. Later versions of the application will look to solve this issue.
 
 ### Deleting a registered service
 
@@ -119,7 +119,7 @@ npm install
 ```
 
 3. Usage:
-- Create a `.env` file in the root directory and add the following :-
+- Create a `.env` file in the ```/arbitor``` dir and add the following :-
 
 ```env
 ##Server Info
