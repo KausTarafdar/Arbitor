@@ -1,8 +1,8 @@
-export const gatewayUrl = "http://localhost:5000/register"
+export const gatewayUrl = process.env.GATEWAY_URL || "http://localhost:5000/register"
 
 export const apiData = {
   "api_name" : "proto_user",
-  "base_url" : "http://localhost",
+  "base_url" : process.env.SERVICE_BASE_URL || "http://localhost",
   "port"     : "3002",
 }
 
