@@ -134,6 +134,17 @@ Authorization: Bearer <token>
 | `level`   | `string` | Optional. Filter to `access` or `error` entries.          |
 | `limit`   | `number` | Optional. Max entries to return (default 50, max 500).    |
 
+### Testing
+
+Run from inside the ```/arbitor``` dir (or via ```npm test --workspace=arbitor``` from the repo root):
+
+- ```npm test```: Unit tests (Node's built-in test runner, no external services needed) - the hash-ring load balancer, service registry, health checker, and the small util functions, all against mocked dependencies.
+- ```npm run test:integration```: Spins up the real gateway and a dummy service as child processes against a real Postgres and exercises them over HTTP - registration, calling through the gateway, 404s, validation errors, the auth login/logout flow, and failover. Needs Postgres reachable on `localhost:5432`; the easiest way is:
+  ```sh
+  docker-compose up -d postgres
+  npm run test:integration --workspace=arbitor
+  ```
+
 ### Migrations
 
 This project uses node-pg-migrate for database migrations. The following commands are available to be run inside the ```/arbitor``` dir :

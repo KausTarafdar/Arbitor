@@ -13,6 +13,12 @@ services:
       POSTGRES_DB: arbitor
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      # Exposed on the host purely for local dev convenience (psql, running
+      # the integration test suite against `docker-compose up -d postgres`
+      # without the rest of the stack). Not used by any container-to-
+      # container traffic, which stays on the internal network/hostname.
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U arbitor"]
       interval: 2s
