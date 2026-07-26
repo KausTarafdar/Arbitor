@@ -1,24 +1,17 @@
 {
-  "name": "arbitor",
+  "name": "arbitor-monorepo",
+  "private": true,
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
+  "workspaces": [
+    "arbitor",
+    "services",
+    "services/Auth-dummy-service",
+    "services/Message-dummy-service",
+    "services/User-dummy-service"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start-dev": "nodemon src/index.js",
-    "start": "node src/index.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "axios": "^1.17.0",
-    "chalk": "^5.3.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "morgan": "^1.10.0",
-    "pg": "^8.12.0"
+    "test": "npm test --workspaces --if-present"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

@@ -134,7 +134,7 @@ git clone https://github.com/KausTarafdar/arbitor.git
 
 2. Install dependencies:
 
-Inside the ```/arbitor``` run :
+This is an npm workspaces monorepo (`arbitor/` plus the dummy services under `services/`). One install at the repo root resolves everything:
 ```sh
 npm install
 ```
