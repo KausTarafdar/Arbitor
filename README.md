@@ -22,6 +22,7 @@ This builds one shared image for the gateway and the 5 bundled dummy services (3
 1. What's currently registered in the service registry.
 2. Calling `proto_login` from 5 different containers and showing the requests get distributed across the 3 Auth instances by the SHA1 hash-ring load balancer.
 3. Killing one Auth instance mid-demo and showing the gateway transparently fails over to a healthy instance, then deregisters the dead one.
+4. Logging into the gateway's optional auth and using the token to query the (otherwise 401'd) `/_logs` endpoint, showing every request/error from the run.
 
 The gateway is published on `http://localhost:5050` (not 5000, to avoid clashing with macOS's AirPlay Receiver). Tear down with `docker compose down`.
 
@@ -105,12 +106,28 @@ The gateway, so far cannot parse parameters in the URL path, it is suggested to 
 
 The gateway is capable of performing health checks for each of the services registered to it and will periodically remove the service. If a service goes down, it will be unregistered by the `health-checker`. Upon restarting the service, it is expected that the service re-registers itself.
 
+### Auth (optional)
+
+The gateway has a minimal, opt-in auth layer: a single admin credential pair (`ARBITOR_ADMIN_USER` / `ARBITOR_ADMIN_PASSWORD`, defaulting to `admin` / `arbitor`) that issues short-lived bearer tokens.
+
+```http
+POST /auth/login   { "username": "...", "password": "..." }  -> { "token": "...", "expires_at": "..." }
+POST /auth/logout  Authorization: Bearer <token>
+```
+
+Two things are gated behind a valid token:
+- `GET /_logs` (see below) - always requires auth, since it's operational data.
+- Calling a registered service whose route was registered with `"access_type": "private"` - `"public"` routes (the default in the bundled dummy services) need no token at all, so this is purely opt-in per service.
+
+This is demo-grade auth (no user table, hashing, or rate limiting) meant to show the pattern, not a production identity system.
+
 ### Logs
 
 Every request and error handled by the gateway is written to a queryable `logs` table (in addition to the readable console output). Query it directly:
 
 ```http
 GET /_logs?level=access|error&limit=50
+Authorization: Bearer <token>
 ```
 | Parameter | Type     | Description                                              |
 | :-------- | :------- | :-------------------------------------------------------- |
@@ -165,6 +182,10 @@ DB_PASSWORD=
 DB_HOST=
 DB_PORT=
 DB_NAME=
+
+##Auth Info (optional - defaults to admin/arbitor if unset)
+ARBITOR_ADMIN_USER=
+ARBITOR_ADMIN_PASSWORD=
 ```
 - To start in production mode run :-
 

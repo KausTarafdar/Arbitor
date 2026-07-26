@@ -40,6 +40,10 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: arbitor
+      # Demo-grade admin credentials for the optional gateway auth (see
+      # POST /auth/login). Not meant for production use.
+      ARBITOR_ADMIN_USER: admin
+      ARBITOR_ADMIN_PASSWORD: arbitor
     ports:
       # Host port 5050 avoids clashing with macOS AirPlay Receiver,
       # which also listens on 5000. Internally the gateway still runs

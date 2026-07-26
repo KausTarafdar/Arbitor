@@ -184,3 +184,47 @@ export class LogRepository {
     return listLogsQuery.rows;
   }
 }
+
+/** Class for the database layer interactions for the sessions table (optional gateway auth) */
+export class SessionRepository {
+
+  /**
+   * @property {Function} _createSession - Stores a new bearer token
+   * @param {String} token
+   * @param {Date} expiresAt
+   * @returns {Array} Array of row objects
+   */
+  async _createSession(token, expiresAt) {
+    const query = "INSERT INTO sessions (token, expires_at) VALUES ($1, $2) RETURNING token, expires_at";
+    const values = [token, expiresAt];
+
+    const createSessionQuery = await client.query(query, values);
+    return createSessionQuery.rows;
+  }
+
+  /**
+   * @property {Function} _findValidSession - Looks up a non-expired session by token
+   * @param {String} token
+   * @returns {Array} Array of row objects
+   */
+  async _findValidSession(token) {
+    const query = "SELECT token FROM sessions WHERE token = $1 AND expires_at > NOW()";
+    const values = [token];
+
+    const findSessionQuery = await client.query(query, values);
+    return findSessionQuery.rows;
+  }
+
+  /**
+   * @property {Function} _deleteSession - Invalidates a session (logout)
+   * @param {String} token
+   * @returns {Object} query result
+   */
+  async _deleteSession(token) {
+    const query = "DELETE FROM sessions WHERE token = $1";
+    const values = [token];
+
+    const deleteSessionQuery = await client.query(query, values);
+    return deleteSessionQuery;
+  }
+}

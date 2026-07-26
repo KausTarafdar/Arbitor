@@ -118,9 +118,34 @@ echo "${target} should now be gone from the live registry:"
 docker exec "${PROJECT_PREFIX}-postgres-1" psql -U arbitor -d arbitor -c \
   "SELECT api_name, base_url, port FROM services WHERE base_url = 'http://${target}';"
 
+step "Optional auth: /_logs is admin data, so it's always behind a bearer token"
+echo "Without a token:"
+curl -s -o /dev/null -w "  GET /_logs -> %{http_code}\n" "http://localhost:${GATEWAY_PORT}/_logs"
+
+TOKEN=$(curl -s -X POST "http://localhost:${GATEWAY_PORT}/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"arbitor"}' | node -e "
+    let data = '';
+    process.stdin.on('data', c => data += c);
+    process.stdin.on('end', () => {
+      try { console.log(JSON.parse(data).token || ''); } catch (e) { console.log(''); }
+    });
+  ")
+
+if [ -z "$TOKEN" ]; then
+  echo "Login failed; skipping authenticated log query." >&2
+else
+  echo "Logged in via POST /auth/login, got a bearer token."
+  echo "With the token:"
+  curl -s -o /dev/null -w "  GET /_logs -> %{http_code}\n" -H "Authorization: Bearer ${TOKEN}" "http://localhost:${GATEWAY_PORT}/_logs"
+fi
+
 step "Queryable logs: every request and error above is in the gateway's log table"
+AUTH_HEADER=()
+[ -n "$TOKEN" ] && AUTH_HEADER=(-H "Authorization: Bearer ${TOKEN}")
+
 echo "Most recent access logs:"
-curl -s "http://localhost:${GATEWAY_PORT}/_logs?level=access&limit=5" | node -e "
+curl -s "${AUTH_HEADER[@]}" "http://localhost:${GATEWAY_PORT}/_logs?level=access&limit=5" | node -e "
   let data = '';
   process.stdin.on('data', c => data += c);
   process.stdin.on('end', () => {
@@ -130,7 +155,7 @@ curl -s "http://localhost:${GATEWAY_PORT}/_logs?level=access&limit=5" | node -e 
 "
 echo
 echo "Recent error logs:"
-curl -s "http://localhost:${GATEWAY_PORT}/_logs?level=error&limit=5" | node -e "
+curl -s "${AUTH_HEADER[@]}" "http://localhost:${GATEWAY_PORT}/_logs?level=error&limit=5" | node -e "
   let data = '';
   process.stdin.on('data', c => data += c);
   process.stdin.on('end', () => {
