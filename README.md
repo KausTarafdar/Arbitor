@@ -4,7 +4,42 @@
 
 This project is an attempt at understanding the programming paradigms behind an API Gateway and to design a homebrew version capable of fulfilling those paradigms.
 
-An API gateway acts as an intermediary between clients and a collection of backend services. **Arbitor** acts as the Single Point Of Access (SPOA) between itself and the backend service as well as a loadbalancer among mutiple instances of services.
+An API gateway acts as an intermediary between clients and a collection of backend services. **Arbitor** acts as the Single Point Of Access (SPOA) between itself and the backend service as well as a loadbalancer among multiple instances of services.
+
+```mermaid
+flowchart LR
+    client(["Client"])
+
+    subgraph gateway["Arbitor gateway"]
+        router["Router\n/register /api /auth /_logs"]
+        lb["Load balancer\n(SHA1 hash ring)"]
+        registry["Service registry"]
+        health["Health checker\n(janitor)"]
+        auth["Auth\n(optional)"]
+    end
+
+    db[("Postgres\nservices / flagged_services\nlogs / sessions")]
+
+    svc1["Service instance A"]
+    svc2["Service instance B"]
+    svc3["Service instance C"]
+
+    client -- "POST /register" --> router
+    client -- "GET/POST /api/:name/:key" --> router
+    router --> lb
+    router --> auth
+    lb --> registry
+    registry --> db
+    auth --> db
+    lb -- "request" --> svc1
+    lb -. "failover" .-> svc2
+    lb -. "failover" .-> svc3
+    health -- "periodic /health check" --> svc1
+    health --> registry
+    svc1 -- "self-register on boot" --> router
+```
+
+Every registered route is load-balanced across however many instances share that `api_name`/`api_key`; a failed call automatically retries the next instance and flags the dead one for the health checker to deregister.
 
 ## Quick Demo
 
@@ -30,9 +65,9 @@ The gateway is published on `http://localhost:5050` (not 5000, to avoid clashing
 
 > The steps below are for running/developing a single piece (gateway or a service) by hand, outside Docker. For just seeing the whole system work, use the Quick Demo above instead.
 
-### Add an service
+### Add a service
 
-Add the `register-service` directory in your service. In the `regiser-service`, edit the `.config.js` according to your service. The guidelines are as follows:
+Add the `register-service` directory in your service. In `register-service`, edit the `.config.js` according to your service. The guidelines are as follows:
 ```js
 export const gatewayUrl = "http://localhost:5000/register"
 ```
@@ -79,14 +114,14 @@ import express from 'express';
 import registrar from './register-service/registrar.js';
 
 const app = express();
-const registrar = registrar(); //Initiate an instance
+const service = registrar(); //Initiate an instance
 
 app.listen(3000, () => {
   console.log(`Starting the app..`);
-  regsitrar.registerToGateway(); //Registering to the gatewya on start.
+  service.registerToGateway(); //Registering to the gateway on start.
 })
 ```
-Upon running the service with the API gateway running, the service wiill register itself to the gateway.
+Upon running the service with the API gateway running, the service will register itself to the gateway.
 
 ### Calling a registered service
 
@@ -153,7 +188,7 @@ This project uses node-pg-migrate for database migrations. The following command
 - ```npm run migrate up```: Applies pending migrations to the database.
 - ```npm run migrate down```: Reverts the latest migration applied to the database.
 > [Note!]
->>You will need to set the DATABASE environment variable before running any migration commands.
+>>You will need to set the DATABASE_URL environment variable before running any migration commands (node-pg-migrate's default).
 
 ### Technologies
 
@@ -161,6 +196,9 @@ This project uses node-pg-migrate for database migrations. The following command
 - Express.js: A popular Node.js web framework for building web applications and APIs.
 - node-pg: A Node.js library for interacting with PostgreSQL databases.
 - node-pg-migrate: A library for managing database migrations with PostgreSQL.
+- Node's built-in test runner (`node --test`) for unit and integration tests - no test framework dependency.
+- Docker + Docker Compose for the one-command demo environment.
+- npm workspaces to manage the gateway and dummy services as one monorepo.
 
 ## Installation
 
@@ -198,14 +236,14 @@ DB_NAME=
 ARBITOR_ADMIN_USER=
 ARBITOR_ADMIN_PASSWORD=
 ```
-- To start in production mode run :-
+- To start in development mode run :-
 
 ```sh
 npm run start-dev
 ```
 Starts the server using **nodemon** allowing the server to run constantly tracking file changes.
 
-- To start in deployment run :-
+- To start in production mode run :-
 
 ```sh
 npm start
