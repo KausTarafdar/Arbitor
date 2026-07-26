@@ -60,23 +60,25 @@ services:
       retries: 15
       start_period: 3s
 
+  # All 3 Auth instances run the same image/codebase (services/Auth-dummy-service);
+  # only SERVICE_BASE_URL differs, which is what the load balancer distributes across.
   auth-1:
     <<: *service-defaults
-    command: ["node", "services/Auth-dummy-service-inst-1/server.js"]
+    command: ["node", "services/Auth-dummy-service/server.js"]
     environment:
       GATEWAY_URL: http://gateway:5000/register
       SERVICE_BASE_URL: http://auth-1
 
   auth-2:
     <<: *service-defaults
-    command: ["node", "services/Auth-dummy-service-inst-2/server.js"]
+    command: ["node", "services/Auth-dummy-service/server.js"]
     environment:
       GATEWAY_URL: http://gateway:5000/register
       SERVICE_BASE_URL: http://auth-2
 
   auth-3:
     <<: *service-defaults
-    command: ["node", "services/Auth-dummy-service-inst-3/server.js"]
+    command: ["node", "services/Auth-dummy-service/server.js"]
     environment:
       GATEWAY_URL: http://gateway:5000/register
       SERVICE_BASE_URL: http://auth-3

@@ -10,7 +10,7 @@
   "devDependencies": {
     "nodemon": "^3.1.4"
   },
-  "name": "dummy_service_2",
+  "name": "auth-dummy-service",
   "version": "1.0.0",
   "main": "server.js",
   "keywords": [],

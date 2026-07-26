@@ -3,7 +3,7 @@ export const gatewayUrl = process.env.GATEWAY_URL || "http://localhost:5000/regi
 export const apiData = {
   "api_name" : "proto_login",
   "base_url" : process.env.SERVICE_BASE_URL || "http://localhost",
-  "port"     : "3003",
+  "port"     : process.env.PORT || "3000",
 }
 
 export const routes = [

@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "auth-1": "nodemon ./Auth-dummy-service-inst-1/server.js",
-    "auth-2": "nodemon ./Auth-dummy-service-inst-2/server.js",
-    "auth-3": "nodemon ./Auth-dummy-service-inst-3/server.js",
+    "auth-1": "PORT=3001 SERVICE_BASE_URL=http://localhost nodemon ./Auth-dummy-service/server.js",
+    "auth-2": "PORT=3002 SERVICE_BASE_URL=http://localhost nodemon ./Auth-dummy-service/server.js",
+    "auth-3": "PORT=3003 SERVICE_BASE_URL=http://localhost nodemon ./Auth-dummy-service/server.js",
     "message": "nodemon ./Message-dummy-service/server.js",
     "user": "nodemon ./User-dummy-service/server.js",
     "start": "npm run auth-1 & npm run auth-2 & npm run auth-3 & npm run message & npm run user"
