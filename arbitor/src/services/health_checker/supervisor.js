@@ -26,17 +26,15 @@ export default class Supervisor {
         }
       }
     } catch (error) {
-      if (error.code === "ECONNREFUSED") {
-        const serviceDelete = new ServiceDelete({
-          api_name: flaggedService.api_name,
-          base_url: flaggedService.base_url,
-          port: flaggedService.port,
-        });
-        const removeInstance = await this.serviceRegistry.deleteApiInstance(serviceDelete);
-        const removeFlagged = await this.serviceRegistry.deleteFlaggedService(flaggedService);
-        if (removeFlagged && removeInstance) {
-          console.log(chalk.red(`Log : || ${serviceDelete.api_name} || removed from registry`))
-        }
+      const serviceDelete = new ServiceDelete({
+        api_name: flaggedService.api_name,
+        base_url: flaggedService.base_url,
+        port: flaggedService.port,
+      });
+      const removeInstance = await this.serviceRegistry.deleteApiInstance(serviceDelete);
+      const removeFlagged = await this.serviceRegistry.deleteFlaggedService(flaggedService);
+      if (removeFlagged && removeInstance) {
+        console.log(chalk.red(`Log : || ${serviceDelete.api_name} || removed from registry`))
       }
     }
   }

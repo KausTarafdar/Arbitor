@@ -55,12 +55,15 @@ export default class API_routing {
     if (['POST', 'PUT', 'PATCH'].includes(this.request.req_method)){
       for(var i=0; i<this.targetServices.length; i++){
         response = await this._callWithBody(this.targetServices[i]);
-        if (response === "ECONNREFUSED") {
+        if (typeof response === "string") {
           await supervisor.surveyor(this.targetServices[i]);
         }
         else {
           break;
         }
+      }
+      if (typeof response === "string") {
+        throw new Error("Service Unavailable");
       }
 
       return response
@@ -68,14 +71,14 @@ export default class API_routing {
     else if (['GET', 'DELETE'].includes(this.request.req_method)) {
       for(var i=0; i<this.targetServices.length; i++){
         response = await this._callWithoutBody(this.targetServices[i]);
-        if (response === "ECONNREFUSED") {
+        if (typeof response === "string") {
           await supervisor.surveyor(this.targetServices[i]);
         }
         else {
           break;
         }
       }
-      if (response === "ECONNREFUSED") {
+      if (typeof response === "string") {
         throw new Error("Service Unavailable");
       }
 
