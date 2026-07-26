@@ -5,8 +5,10 @@ import { FlaggedService, ServiceDelete } from '../../dto/api.js';
 
 export default class Supervisor {
   serviceRegistry
-  constructor(registry) {
+  httpClient
+  constructor(registry, httpClient = axios) {
     this.serviceRegistry = registry;
+    this.httpClient = httpClient;
   }
 
   async janitor() {
@@ -15,7 +17,7 @@ export default class Supervisor {
       return 0;
     }
     try {
-      const axiosRes = await axios({
+      const axiosRes = await this.httpClient({
         method: "GET",
         url: `${flaggedService.base_url}:${flaggedService.port}/health`
       })
