@@ -1,0 +1,99 @@
+x-service-defaults: &service-defaults
+  build: .
+  depends_on:
+    gateway:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: arbitor
+      POSTGRES_PASSWORD: arbitor
+      POSTGRES_DB: arbitor
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arbitor"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  migrate:
+    build: .
+    working_dir: /app/arbitor
+    command: ["npx", "node-pg-migrate", "up"]
+    environment:
+      DATABASE_URL: postgres://arbitor:arbitor@postgres:5432/arbitor
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  gateway:
+    build: .
+    command: ["node", "arbitor/src/gateway.js"]
+    environment:
+      PORT: 5000
+      URL: http://gateway
+      DB_USER: arbitor
+      DB_PASSWORD: arbitor
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: arbitor
+    ports:
+      # Host port 5050 avoids clashing with macOS AirPlay Receiver,
+      # which also listens on 5000. Internally the gateway still runs
+      # on 5000 (see PORT above and GATEWAY_URL on the dummy services).
+      - "5050:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      # No dedicated /health route on the gateway itself; a successful
+      # TCP connect means Express is bound and (per gateway.js) the
+      # Postgres client connect has had time to resolve.
+      test: ["CMD-SHELL", "node -e \"const s=require('net').connect(5000,'localhost');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))\""]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+      start_period: 3s
+
+  auth-1:
+    <<: *service-defaults
+    command: ["node", "services/Auth-dummy-service-inst-1/server.js"]
+    environment:
+      GATEWAY_URL: http://gateway:5000/register
+      SERVICE_BASE_URL: http://auth-1
+
+  auth-2:
+    <<: *service-defaults
+    command: ["node", "services/Auth-dummy-service-inst-2/server.js"]
+    environment:
+      GATEWAY_URL: http://gateway:5000/register
+      SERVICE_BASE_URL: http://auth-2
+
+  auth-3:
+    <<: *service-defaults
+    command: ["node", "services/Auth-dummy-service-inst-3/server.js"]
+    environment:
+      GATEWAY_URL: http://gateway:5000/register
+      SERVICE_BASE_URL: http://auth-3
+
+  message:
+    <<: *service-defaults
+    command: ["node", "services/Message-dummy-service/server.js"]
+    environment:
+      GATEWAY_URL: http://gateway:5000/register
+      SERVICE_BASE_URL: http://message
+
+  user:
+    <<: *service-defaults
+    command: ["node", "services/User-dummy-service/server.js"]
+    environment:
+      GATEWAY_URL: http://gateway:5000/register
+      SERVICE_BASE_URL: http://user
+
+volumes:
+  pgdata:
