@@ -118,7 +118,29 @@ echo "${target} should now be gone from the live registry:"
 docker exec "${PROJECT_PREFIX}-postgres-1" psql -U arbitor -d arbitor -c \
   "SELECT api_name, base_url, port FROM services WHERE base_url = 'http://${target}';"
 
+step "Queryable logs: every request and error above is in the gateway's log table"
+echo "Most recent access logs:"
+curl -s "http://localhost:${GATEWAY_PORT}/_logs?level=access&limit=5" | node -e "
+  let data = '';
+  process.stdin.on('data', c => data += c);
+  process.stdin.on('end', () => {
+    const { logs } = JSON.parse(data);
+    for (const l of logs) console.log(\`  \${l.created_at}  \${l.method.padEnd(6)} \${l.path.padEnd(30)} \${l.status_code}  \${l.duration_ms}ms\`);
+  });
+"
+echo
+echo "Recent error logs:"
+curl -s "http://localhost:${GATEWAY_PORT}/_logs?level=error&limit=5" | node -e "
+  let data = '';
+  process.stdin.on('data', c => data += c);
+  process.stdin.on('end', () => {
+    const { logs } = JSON.parse(data);
+    for (const l of logs) console.log(\`  \${l.created_at}  \${l.method} \${l.path}  -  \${l.message}\`);
+  });
+"
+
 step "Done"
 echo "Stack is still running. Useful commands:"
-echo "  ${COMPOSE} logs -f gateway   # watch the gateway"
-echo "  ${COMPOSE} down              # tear everything down"
+echo "  ${COMPOSE} logs -f gateway              # watch the gateway"
+echo "  curl http://localhost:${GATEWAY_PORT}/_logs?level=error  # query error logs"
+echo "  ${COMPOSE} down                         # tear everything down"

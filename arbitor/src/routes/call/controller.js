@@ -3,6 +3,7 @@ import { ServiceRepository, FlagServiceRepository } from "../../models/dbAccess.
 import API_routing from "../../services/api_router/apiRouter.js";
 import Supervisor from "../../services/health_checker/supervisor.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
+import { logError } from "../../services/logger/index.js";
 import generateQueryString from "../../utils/generateQueryString.js";
 import parseRequest from "../../utils/pathParser.js";
 
@@ -34,14 +35,12 @@ export default async function handleApiCall(req, res) {
     });
 
     serviceRouter.loadBalancer();
-    console.log(serviceRouter)
     const response = await serviceRouter.callService(new Supervisor(serviceRegistry));
     return res.status(200).json(response.data);
 
   } catch (err) {
-    console.log("")
-    console.log(err.message)
-    return res.status(500).json({
+    await logError(err, req);
+    return res.status(err.message === "No matched api" ? 404 : 500).json({
       Error : "Internal Server Error"
     })
   }

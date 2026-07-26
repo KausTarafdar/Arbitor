@@ -105,6 +105,18 @@ The gateway, so far cannot parse parameters in the URL path, it is suggested to 
 
 The gateway is capable of performing health checks for each of the services registered to it and will periodically remove the service. If a service goes down, it will be unregistered by the `health-checker`. Upon restarting the service, it is expected that the service re-registers itself.
 
+### Logs
+
+Every request and error handled by the gateway is written to a queryable `logs` table (in addition to the readable console output). Query it directly:
+
+```http
+GET /_logs?level=access|error&limit=50
+```
+| Parameter | Type     | Description                                              |
+| :-------- | :------- | :-------------------------------------------------------- |
+| `level`   | `string` | Optional. Filter to `access` or `error` entries.          |
+| `limit`   | `number` | Optional. Max entries to return (default 50, max 500).    |
+
 ### Migrations
 
 This project uses node-pg-migrate for database migrations. The following commands are available to be run inside the ```/arbitor``` dir :

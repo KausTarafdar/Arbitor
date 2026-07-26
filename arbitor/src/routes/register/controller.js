@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { Service } from "../../dto/api.js";
 import { ServiceRepository } from "../../models/dbAccess.js";
 import ServiceRegistry from "../../services/service_registry/serviceRegistry.js";
+import { logError } from "../../services/logger/index.js";
 
 const serviceRepository = new ServiceRepository();
 const serviceRegistry = new ServiceRegistry({
@@ -22,7 +23,7 @@ export default async function handleRegister(req, res) {
 
   } catch (err) {
 
-    console.log(chalk.redBright(err.message));
+    await logError(err, req);
     return res.status(500).json({
       error: "Internal server error"
     })

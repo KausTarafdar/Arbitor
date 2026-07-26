@@ -136,3 +136,51 @@ export class FlagServiceRepository {
     return getOneQuery.rows;
   }
 }
+
+/** Class for the database layer interactions for the queryable logs table */
+export class LogRepository {
+
+  /**
+   * @property {Function} _insertLog - Inserts one access/error log entry
+   * @param {Object} entry
+   * @returns {Array} Array of row objects
+   */
+  async _insertLog(entry) {
+    const query = "INSERT INTO logs (level, method, path, status_code, ip, duration_ms, message) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id";
+    const values = [
+      entry.level,
+      entry.method,
+      entry.path,
+      entry.status_code,
+      entry.ip,
+      entry.duration_ms,
+      entry.message,
+    ];
+
+    const insertLogQuery = await client.query(query, values);
+    return insertLogQuery.rows;
+  }
+
+  /**
+   * @property {Function} _list - Lists the most recent log entries, optionally filtered by level
+   * @param {Object} filter - { level, limit }
+   * @returns {Array} Array of row objects
+   */
+  async _list({ level, limit }) {
+    const conditions = [];
+    const values = [];
+
+    if (level) {
+      values.push(level);
+      conditions.push(`level = $${values.length}`);
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    values.push(limit);
+
+    const query = `SELECT id, level, method, path, status_code, ip, duration_ms, message, created_at FROM logs ${whereClause} ORDER BY created_at DESC LIMIT $${values.length}`;
+
+    const listLogsQuery = await client.query(query, values);
+    return listLogsQuery.rows;
+  }
+}
