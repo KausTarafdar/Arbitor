@@ -1,5 +1,6 @@
 import { login, logout } from "../../services/auth/authService.js";
 import { logError } from "../../services/logger/index.js";
+import { sendError } from "../../utils/errors.js";
 
 export async function handleLogin(req, res) {
   try {
@@ -8,7 +9,7 @@ export async function handleLogin(req, res) {
     return res.status(200).json({ res: "Logged in", ...session });
   } catch (err) {
     await logError(err, req);
-    return res.status(401).json({ Error: "Invalid credentials" });
+    return sendError(res, err);
   }
 }
 
@@ -20,6 +21,6 @@ export async function handleLogout(req, res) {
     return res.status(200).json({ res: "Logged out" });
   } catch (err) {
     await logError(err, req);
-    return res.status(400).json({ Error: "Bad Request" });
+    return sendError(res, err);
   }
 }

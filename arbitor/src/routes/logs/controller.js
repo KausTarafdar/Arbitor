@@ -1,4 +1,6 @@
 import { LogRepository } from "../../models/dbAccess.js";
+import { logError } from "../../services/logger/index.js";
+import { sendError } from "../../utils/errors.js";
 
 const logRepository = new LogRepository();
 
@@ -12,8 +14,7 @@ export default async function handleGetLogs(req, res) {
 
     return res.status(200).json({ count: logs.length, logs });
   } catch (err) {
-    return res.status(500).json({
-      Error: "Internal Server Error"
-    })
+    await logError(err, req);
+    return sendError(res, err);
   }
 }

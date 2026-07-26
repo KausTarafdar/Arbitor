@@ -1,3 +1,5 @@
+import { NotFoundError } from "../../utils/errors.js";
+
 /** Class representing the service registry for API discovery */
 export default class ServiceRegistry {
   serviceRepository
@@ -15,7 +17,7 @@ export default class ServiceRegistry {
    */
   async searchApi(serviceCall) {
     const callAPI = await this.serviceRepository._callService(serviceCall);
-    if (callAPI.length === 0) throw new Error("No matched api");
+    if (callAPI.length === 0) throw new NotFoundError("No matched api");
     return callAPI;
   }
 

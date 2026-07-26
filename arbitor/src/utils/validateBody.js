@@ -1,10 +1,12 @@
+import { ValidationError } from "./errors.js";
+
 /**
  * validateBody checks if body is valid.
  * @param {Object} body - Takes the body from request.
  * @param {Array[*]} checkKeys - Takes the a array of keys to check body for.
  * @param {Function} extravalidate - Takes any addition evaluatio function, DEFAULT => TRUE.
  * @returns {Boolean} - true
- * @throws Internal gateway error
+ * @throws {ValidationError}
  */
 
 export default function validateBody(body, checkKeys, extraValidate = true) {
@@ -23,9 +25,9 @@ export default function validateBody(body, checkKeys, extraValidate = true) {
   if (validFlag){
     if(typeof(extraValidate) == "boolean") return true;
     if(extraValidate(body) == true) return true;
-    throw new Error("Request body error");
+    throw new ValidationError("Request body error");
   }
   else {
-    throw new Error("Request body error");
+    throw new ValidationError("Request body error");
   }
 }

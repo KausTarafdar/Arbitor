@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 
 import { SessionRepository } from "../../models/dbAccess.js";
+import { UnauthorizedError, ValidationError } from "../../utils/errors.js";
 
 const sessionRepository = new SessionRepository();
 const SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour
@@ -17,7 +18,7 @@ const ADMIN_PASSWORD = process.env.ARBITOR_ADMIN_PASSWORD || "arbitor";
  */
 export async function login(username, password) {
   if (username !== ADMIN_USER || password !== ADMIN_PASSWORD) {
-    throw new Error("Invalid credentials");
+    throw new UnauthorizedError("Invalid credentials");
   }
 
   const token = crypto.randomBytes(24).toString('hex');
@@ -29,7 +30,7 @@ export async function login(username, password) {
 }
 
 export async function logout(token) {
-  if (!token) throw new Error("Missing token");
+  if (!token) throw new ValidationError("Missing token");
   await sessionRepository._deleteSession(token);
 }
 

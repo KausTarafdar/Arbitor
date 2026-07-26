@@ -1,4 +1,5 @@
 import { isValidToken } from "../services/auth/authService.js";
+import { UnauthorizedError, sendError } from "../utils/errors.js";
 
 function extractToken(req) {
   const header = req.headers['authorization'] || '';
@@ -14,5 +15,5 @@ export async function isAuthenticated(req) {
 /** Express middleware form of isAuthenticated, for routes that always require auth. */
 export default async function requireAuth(req, res, next) {
   if (await isAuthenticated(req)) return next();
-  return res.status(401).json({ Error: "Unauthorized" });
+  return sendError(res, new UnauthorizedError("Unauthorized"));
 }

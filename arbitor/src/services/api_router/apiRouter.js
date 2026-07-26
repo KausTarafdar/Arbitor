@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import axios from 'axios';
 
 import countNums from '../../utils/countNums.js';
+import { ServiceUnavailableError } from '../../utils/errors.js';
 
 /** Class representing the load balancer and the service calling*/
 export default class API_routing {
@@ -63,7 +64,7 @@ export default class API_routing {
         }
       }
       if (typeof response === "string") {
-        throw new Error("Service Unavailable");
+        throw new ServiceUnavailableError("Service Unavailable");
       }
 
       return response
@@ -79,7 +80,7 @@ export default class API_routing {
         }
       }
       if (typeof response === "string") {
-        throw new Error("Service Unavailable");
+        throw new ServiceUnavailableError("Service Unavailable");
       }
 
       return response
