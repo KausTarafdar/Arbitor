@@ -6,7 +6,28 @@ This project is an attempt at understanding the programming paradigms behind an 
 
 An API gateway acts as an intermediary between clients and a collection of backend services. **Arbitor** acts as the Single Point Of Access (SPOA) between itself and the backend service as well as a loadbalancer among mutiple instances of services.
 
+## Quick Demo
+
+The fastest way to see Arbitor actually working - registration, hash-based load balancing across multiple instances of a service, and automatic failover/deregistration when an instance dies - is via Docker Compose:
+
+```sh
+git clone https://github.com/KausTarafdar/arbitor.git
+cd arbitor
+docker compose up -d --build
+./demo.sh
+```
+
+This builds one shared image for the gateway and the 5 bundled dummy services (3 `Auth` instances, `User`, `Message`), stands up Postgres, runs migrations, starts everything, then `demo.sh` walks through:
+
+1. What's currently registered in the service registry.
+2. Calling `proto_login` from 5 different containers and showing the requests get distributed across the 3 Auth instances by the SHA1 hash-ring load balancer.
+3. Killing one Auth instance mid-demo and showing the gateway transparently fails over to a healthy instance, then deregisters the dead one.
+
+The gateway is published on `http://localhost:5050` (not 5000, to avoid clashing with macOS's AirPlay Receiver). Tear down with `docker compose down`.
+
 ## Usage Reference
+
+> The steps below are for running/developing a single piece (gateway or a service) by hand, outside Docker. For just seeing the whole system work, use the Quick Demo above instead.
 
 ### Add an service
 
